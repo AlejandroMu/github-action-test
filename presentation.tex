@@ -8,17 +8,14 @@
 \begin{document}
 
 % ==============================================================================
-% PORTADA
+% PORTADA Y AGENDA
 % ==============================================================================
 \titleSlideSplit
   {DevOps \& CI/CD}
-  {Guía Práctica para Ingeniería de Software}
-  {Departamento de TIC · Infraestructura IasLab}
+  {Guía Integral de Arquitectura: Scripts, Docker, GitFlows y GitHub Actions}
+  {Departamento de TIC · Ingeniería de Software}
   {Universidad Icesi · 2026}
 
-% ==============================================================================
-% AGENDA
-% ==============================================================================
 \agendaSlideCards
   {Ruta de Aprendizaje}
   {Módulo 1: Scripts de Automatización}
@@ -27,149 +24,225 @@
   {Módulo 4: CI/CD con GitHub Actions}
 
 % ==============================================================================
-% MÓDULO 1: SCRIPTS Y AUTOMATIZACIÓN
+% MÓDULO 1: AUTOMATIZACIÓN CON SCRIPTS (BASH & SHELL SCRIPTING)
 % ==============================================================================
 \sectionSlideStripe
   {01}
   {Scripts de Automatización}
-  {Buenas prácticas, ejecución segura y parametrización en Bash}
+  {Principios de ejecución defensiva, validación de parámetros y robustez}
 
 \contentSlideBulletCard
   {Shell Scripting Defensivo}
   {
     \begin{itemize}
-      \item \textbf{set -e:} Detiene la ejecución si falla cualquier comando.
-      \item \textbf{set -u:} Trata el uso de variables no definidas como error fatal.
-      \item \textbf{set -o pipefail:} Detecta errores intermedios en tuberías (\texttt{|}).
-      \item \textbf{Idempotencia:} El script debe poder ejecutarse múltiples veces sin inconsistencias.
+      \item \textbf{set -e:} Detiene el script ante el primer comando con código de salida no cero.
+      \item \textbf{set -u:} Lanza error si se intenta expandir una variable no inicializada.
+      \item \textbf{set -o pipefail:} Propaga códigos de error en tuberías (\texttt{cmd1 | cmd2}).
+      \item \textbf{trap on\_exit:} Limpieza automática de archivos temporales al terminar.
     \end{itemize}
   }
   {Principio de Robustez}
-  {Un script de producción debe abortar inmediatamente ante estados inesperados para prevenir corrupciones en el servidor.}
+  {En servidores y pipelines automatizados, un script jamás debe continuar ejecutándose ante fallos silenciosos.}
 
 \contentSlideTwoCols
-  {Estructura de un Script de Despliegue}
-  {Validación de Parámetros}
+  {Validación de Argumentos y Entorno}
+  {Parámetros y Variables}
   {
     \begin{itemize}
-      \item Validar argumentos posicionales (\texttt{\$1}, \texttt{\$2}).
-      \item Proveer valores por defecto con sintaxis \texttt{\$\{VAR:-defaul\}}.
-      \item Verificar existencia de rutas con \texttt{[ -d "\$DIR" ]}.
+      \item Validación de argumentos posicionales obligatorios (\texttt{\$1}, \texttt{\$2}).
+      \item Asignación de valores por defecto: \texttt{\$\{APP\_ENV:-dev\}}.
+      \item Carga segura de variables de entorno desde archivos \texttt{.env}.
     \end{itemize}
   }
-  {Control y Notificaciones}
+  {Verificaciones Previas}
   {
     \begin{itemize}
-      \item Uso de códigos de salida claros (\texttt{exit 1}).
-      \item Colores en consola para trazabilidad de éxito y fallo.
-      \item Registro de eventos en archivos de log dedicados.
+      \item Verificación de herramientas instaladas con \texttt{command -v}.
+      \item Comprobación de disponibilidad de puertos y bases de datos.
+      \item Validación de permisos y espacio en disco disponible.
+    \end{itemize}
+  }
+
+\contentSlideTwoCols
+  {Trazabilidad y Manejo de Errores}
+  {Códigos de Salida}
+  {
+    \begin{itemize}
+      \item \textbf{exit 0:} Ejecución exitosa y condiciones cumplidas.
+      \item \textbf{exit 1..255:} Códigos de error específicos para depuración.
+      \item Uso de constantes con nombres descriptivos de errores.
+    \end{itemize}
+  }
+  {Formato de Mensajes}
+  {
+    \begin{itemize}
+      \item Diferenciación entre mensajes informativos y de error (\texttt{stderr}).
+      \item Salidas con marcas de tiempo y niveles (\texttt{INFO}, \texttt{WARN}, \texttt{ERROR}).
+      \item Formato legible y compatible con sistemas de agregación de logs.
     \end{itemize}
   }
 
 \contentSlideQuoteStat
-  {Buenas Prácticas en Automatización}
+  {Automatización Confiable}
   {set -euo pipefail}
-  {Directiva de Ejecución Defensiva}
-  {“La automatización confiable elimina el error humano en los despliegues repetitivos de software.”}
+  {Estándar de la Industria}
+  {“La automatización defensiva previene el error humano y garantiza ejecuciones determinísticas en cualquier infraestructura.”}
 
 % ==============================================================================
-% MÓDULO 2: CONTENERIZACIÓN CON DOCKER
+% MÓDULO 2: CONTENERIZACIÓN CON DOCKER & DOCKER COMPOSE
 % ==============================================================================
 \sectionSlideSolid
   {02}
   {Contenerización con Docker}
-  {Multi-Stage Builds, Docker Compose y Reverse Proxy}
+  {Multi-Stage Builds para Spring Boot y React, Compose y Reverse Proxy}
 
 \contentSlideBulletCard
-  {Optimización con Multi-Stage Builds}
+  {Multi-Stage Build: Backend Spring Boot}
   {
     \begin{itemize}
-      \item \textbf{Etapa Builder:} Descarga dependencias y compila el binario con JDK o Node.js.
-      \item \textbf{Etapa Runtime:} Copia únicamente el artefacto final a una imagen ligera (JRE o Nginx Alpine).
-      \item \textbf{Seguridad:} Ejecutar contenedores con usuarios no privilegiados (\texttt{USER app}).
-      \item \textbf{Eficiencia:} Reduce imágenes de 800MB a menos de 40MB.
+      \item \textbf{Etapa 1 (Build):} Imagen JDK completa con Gradle o Maven para compilar el archivo JAR.
+      \item \textbf{Etapa 2 (Runtime):} Imagen JRE mínima de ejecución (Eclipse Temurin Alpine).
+      \item \textbf{Seguridad:} Creación y uso de un usuario no privilegiado (\texttt{USER appuser}).
+      \item \textbf{Resultado:} Imagen final ligera (< 150MB) sin compiladores ni código fuente.
     \end{itemize}
   }
-  {Aislamiento de Capas}
-  {Separar compilación y ejecución previene vulnerabilidades y acelera la transferencia de imágenes por la red.}
+  {Aislamiento de Construcción}
+  {El código fuente y las herramientas de compilación quedan aislados de la imagen final desplegada en producción.}
+
+\contentSlideBulletCard
+  {Multi-Stage Build: Frontend React SPA}
+  {
+    \begin{itemize}
+      \item \textbf{Etapa 1 (Build):} Contenedor Node.js para instalar dependencias (\texttt{npm ci}) y empaquetar con Vite.
+      \item \textbf{Etapa 2 (Runtime):} Servidor web Nginx Alpine ultraligero (< 25MB).
+      \item \textbf{Configuración SPA:} Redirección de rutas HTML5 (\texttt{try\_files \$uri /index.html}).
+      \item \textbf{Rendimiento:} Servido de estáticos optimizado con compresión gzip habilitada.
+    \end{itemize}
+  }
+  {Eficiencia de Despliegue}
+  {La imagen final no incluye Node.js ni la carpeta \texttt{node\_modules}, reduciendo drásticamente la superficie de ataque.}
 
 \contentSlideTwoCols
   {Orquestación con Docker Compose}
-  {Definición de Servicios}
+  {Definición de la Arquitectura}
   {
     \begin{itemize}
-      \item Declaración declarativa de servicios, redes y volúmenes.
-      \item Aislamiento en redes puente (\textit{bridge networks}).
-      \item Parámetros de reinicio automático (\texttt{unless-stopped}).
+      \item \textbf{Servicio DB:} PostgreSQL con volúmenes persistentes nombrados.
+      \item \textbf{Servicio API:} Spring Boot conectado a la BD mediante variables \texttt{.env}.
+      \item \textbf{Servicio Web:} Frontend React sirviendo la interfaz de usuario.
     \end{itemize}
   }
-  {Mapeo de Puertos y Variables}
+  {Aislamiento de Redes}
   {
     \begin{itemize}
-      \item Exposición local segura (\texttt{127.0.0.1:9088:80}).
-      \item Centralización de secretos mediante archivos \texttt{.env}.
-      \item Control de dependencias mediante \texttt{depends\_on}.
+      \item Creación de una red bridge interna para comunicación inter-servicios.
+      \item Resolución DNS interna por nombre de servicio (e.g. \texttt{postgres-db:5432}).
+      \item Mapeo exclusivo de puertos públicos necesarios hacia el exterior.
     \end{itemize}
   }
 
-\contentSlideBulletCard
-  {Arquitectura con Nginx Reverse Proxy}
+\contentSlideTwoCols
+  {Enrutamiento con Nginx Reverse Proxy}
+  {Punto de Entrada Unificado}
   {
     \begin{itemize}
-      \item \textbf{Punto Único de Entrada:} Nginx escucha en el puerto 80 del servidor.
-      \item \textbf{Enrutamiento Modular:} Inclusión dinámica de \texttt{/home/iaslab/*/nginx.conf}.
-      \item \textbf{Proxy Pass:} Reenvía el tráfico hacia el contenedor interno (\texttt{http://127.0.0.1:puerto}).
-      \item \textbf{Preservación de Rutas:} Redirección 301 con \texttt{\$is\_args\$args}.
+      \item Recepción centralizada de tráfico HTTP/HTTPS en el host.
+      \item Terminación SSL/TLS segura y gestión de certificados.
+      \item Enrutamiento por prefijo de ruta o subdominio.
     \end{itemize}
   }
-  {Patrón Institucional IasLab}
-  {Cada proyecto gestiona su propio archivo de configuración de Nginx sin afectar a otros servicios del host.}
+  {Mapeo de Rutas de la Aplicación}
+  {
+    \begin{itemize}
+      \item \texttt{/}: Reenvío al contenedor del Frontend React (puerto 80).
+      \item \texttt{/api/}: Reenvío al contenedor de la API Spring Boot (puerto 8080).
+      \item Inyección de cabeceras \texttt{Host}, \texttt{X-Real-IP} y \texttt{X-Forwarded-For}.
+    \end{itemize}
+  }
+
+\contentSlideQuoteStat
+  {Arquitectura en Contenedores}
+  {Microservicios}
+  {Portabilidad y Aislamiento}
+  {“Contenerizar cada capa de la aplicación desacopla el desarrollo de la infraestructura y simplifica la escalabilidad.”}
 
 % ==============================================================================
-% MÓDULO 3: FLUJOS DE TRABAJO EN GIT (GITFLOW)
+% MÓDULO 3: FLUJOS DE TRABAJO EN GIT (GITFLOW) & VERSIONADO
 % ==============================================================================
 \sectionSlideStripe
   {03}
   {Estrategias de Git y GitFlow}
-  {Topología de ramas, SemVer y control de calidad}
+  {Topología de ramas, versionado semántico y control de calidad}
 
 \contentSlideTwoCols
-  {Topología de Ramas en GitFlow}
-  {Ramas de Larga Duración}
+  {Estructura de Ramas en GitFlow}
+  {Ramas Permanentes}
   {
     \begin{itemize}
-      \item \textbf{main / master:} Código estable en producción (\texttt{v1.0.0}).
-      \item \textbf{develop:} Integración continua de nuevas características (\texttt{SNAPSHOT}).
-      \item \textbf{release / qa:} Estabilización y pruebas previas al despliegue (\texttt{RC}).
+      \item \textbf{main / master:} Representa el estado en producción. Contiene solo releases estables y etiquetados.
+      \item \textbf{develop:} Rama de integración continua donde convergen las nuevas funcionalidades terminadas.
     \end{itemize}
   }
   {Ramas de Soporte Temporal}
   {
     \begin{itemize}
-      \item \textbf{feature/*:} Desarrollo de requerimientos específicos.
+      \item \textbf{feature/*:} Desarrollos individuales nacidos de \texttt{develop}.
+      \item \textbf{release/*:} Preparación y estabilización de versiones.
       \item \textbf{hotfix/*:} Corrección urgente de bugs críticos en producción.
-      \item Integración mediante Pull Requests con revisión obligatoria.
     \end{itemize}
   }
 
 \contentSlideBulletCard
-  {Versionado y Convenciones de Commits}
+  {Versionado Semántico (SemVer 2.0.0)}
   {
     \begin{itemize}
-      \item \textbf{SemVer (X.Y.Z):} \textit{Major} (rompimiento), \textit{Minor} (funcionalidad), \textit{Patch} (corrección).
-      \item \textbf{feat:} Introduce una nueva característica funcional.
-      \item \textbf{fix:} Soluciona un bug o defecto identificado.
-      \item \textbf{ci / docs / refactor:} Cambios en pipelines, guías o estructura interna.
+      \item \textbf{MAJOR (X.0.0):} Cambios incompatibles que rompen contratos de API o modelos de datos.
+      \item \textbf{MINOR (1.X.0):} Incorporación de nuevas funcionalidades retrocompatibles.
+      \item \textbf{PATCH (1.0.X):} Corrección de errores y bugs sin alterar el comportamiento general.
+      \item \textbf{Sufijos:} \texttt{-SNAPSHOT} para ramas de desarrollo y \texttt{-RC1} para candidatos a release.
     \end{itemize}
   }
-  {Trazabilidad Total}
-  {Un historial estandarizado permite generar changelogs automatizados y facilita el rastreo de versiones.}
+  {Contrato de Versiones}
+  {SemVer permite a los clientes y consumidores de un API predecir el impacto de actualizar una dependencia o servicio.}
+
+\contentSlideTwoCols
+  {Commits Convencionales y Trazabilidad}
+  {Tipos de Commit Estandarizados}
+  {
+    \begin{itemize}
+      \item \textbf{feat:} Nueva funcionalidad en backend o frontend.
+      \item \textbf{fix:} Corrección de un fallo o error reportado.
+      \item \textbf{refactor:} Mejora estructural del código sin cambiar comportamiento.
+      \item \textbf{ci / docs / test:} Tareas de soporte y pipeline.
+    \end{itemize}
+  }
+  {Estructura del Mensaje}
+  {
+    \begin{itemize}
+      \item Encabezado conciso en modo imperativo con alcance opcional.
+      \item Cuerpo descriptivo explicando el \textit{por qué} del cambio.
+      \item Referencias a tickets, issues o cambios disruptivos (\texttt{BREAKING CHANGE}).
+    \end{itemize}
+  }
+
+\contentSlideBulletCard
+  {Control de Calidad: Pull Requests y Code Review}
+  {
+    \begin{itemize}
+      \item \textbf{Protección de Ramas:} Restringir el push directo a \texttt{main} y \texttt{develop}.
+      \item \textbf{Pruebas Automatizadas:} Ejecución obligatoria del pipeline de CI antes de autorizar el merge.
+      \item \textbf{Revisión por Pares:} Aprobación requerida de al menos un revisor del equipo de desarrollo.
+      \item \textbf{Estrategia de Merge:} Uso de \textit{Squash and Merge} para mantener un historial limpio y lineal.
+    \end{itemize}
+  }
+  {Cultura de Calidad}
+  {El Pull Request es el punto focal de colaboración técnica, detección temprana de deuda técnica y transferencia de conocimiento.}
 
 \contentSlideQuoteStat
-  {Disciplina en Control de Versiones}
-  {Pull Requests}
-  {Flujo de Integración Protegido}
-  {“La rama principal debe permanecer inmutable; todo cambio debe pasar por revisión por pares y pruebas automatizadas.”}
+  {Integridad del Código}
+  {Branch Protection}
+  {Disciplina en Repositorios}
+  {“Ningún cambio ingresa a las ramas principales sin validación automatizada de pruebas y revisión de código.”}
 
 % ==============================================================================
 % MÓDULO 4: CI/CD CON GITHUB ACTIONS
@@ -177,68 +250,87 @@
 \sectionSlideDark
   {04}
   {CI/CD con GitHub Actions}
-  {Pipelines condicionales y Runners Auto-Hospedados}
+  {Pipelines declarativos, workflows condicionales y entornos de ejecución}
 
 \contentSlideBulletCard
-  {Anatomía de un Workflow en GitHub}
+  {Anatomía de un Pipeline Declarativo}
   {
     \begin{itemize}
-      \item \textbf{Ubicación:} Archivos YAML en \texttt{.github/workflows/}.
-      \item \textbf{Eventos (on):} Disparadores por \texttt{push}, \texttt{pull\_request} o \texttt{workflow\_dispatch}.
-      \item \textbf{Jobs:} Unidades de trabajo que se ejecutan en runners específicos.
-      \item \textbf{Steps:} Pasos secuenciales que invocan acciones predefinidas o comandos de shell.
+      \item \textbf{Ubicación:} Archivos YAML estructurados bajo \texttt{.github/workflows/}.
+      \item \textbf{Triggers (on):} Eventos de activación por \texttt{push}, \texttt{pull\_request} o manuales (\texttt{workflow\_dispatch}).
+      \item \textbf{Jobs:} Conjunto de tareas que se ejecutan en paralelo o de forma secuencial con dependencias (\texttt{needs}).
+      \item \textbf{Steps:} Pasos individuales que invocan acciones de la comunidad (\texttt{uses}) o comandos de shell (\texttt{run}).
     \end{itemize}
   }
-  {Automatización Declarativa}
-  {Permite codificar el ciclo de vida completo de compilación, pruebas y entrega en el mismo repositorio.}
+  {Pipeline as Code}
+  {Toda la lógica de integración, pruebas y despliegue vive versionada en el mismo repositorio del proyecto.}
 
 \contentSlideTwoCols
-  {Despliegues Condicionales por Rama}
-  {Rama main (Despliegue Estático)}
+  {Pipeline de Integración Continua (CI)}
+  {Fase de Backend (Spring Boot)}
   {
     \begin{itemize}
-      \item Filtro en trigger: \texttt{on.push.branches: [ main ]}.
-      \item Copia archivos estáticos a \texttt{/home/iaslab/app}.
-      \item Valida y recarga Nginx del host.
+      \item Configuración del JDK mediante \texttt{actions/setup-java}.
+      \item Ejecución de pruebas unitarias y de integración (\texttt{mvn test} / \texttt{gradle test}).
+      \item Análisis estático de código y reporte de cobertura de pruebas.
     \end{itemize}
   }
-  {Rama docker (Contenedores)}
+  {Fase de Frontend (React)}
   {
     \begin{itemize}
-      \item Filtro en trigger: \texttt{on.push.branches: [ docker ]}.
-      \item Ejecuta \texttt{docker compose up -d --build}.
-      \item Configura reverse proxy hacia el puerto del contenedor.
+      \item Instalación determinística con \texttt{npm ci}.
+      \item Validación de sintaxis y estilos con Linters (\texttt{ESLint}).
+      \item Ejecución de pruebas unitarias de componentes con \texttt{Jest} o \texttt{Vitest}.
+    \end{itemize}
+  }
+
+\contentSlideTwoCols
+  {Estrategia de Despliegues Condicionales}
+  {Validación en Pull Requests}
+  {
+    \begin{itemize}
+      \item Se activa ante \texttt{pull\_request} hacia \texttt{develop} o \texttt{main}.
+      \item Ejecuta compilación y pruebas sin realizar despliegues en servidores.
+      \item Bloquea la integración si alguna prueba unitaria falla.
+    \end{itemize}
+  }
+  {Despliegue Continuo (CD)}
+  {
+    \begin{itemize}
+      \item Se activa únicamente tras el merge exitoso a \texttt{main} o \texttt{release/*}.
+      \item Construye las imágenes Docker optimizadas de la API y el Frontend.
+      \item Despliega los nuevos contenedores y valida la salud del servicio.
     \end{itemize}
   }
 
 \contentSlideBulletCard
-  {Self-Hosted Runners en grid100}
+  {Entornos de Ejecución: Cloud vs Self-Hosted Runners}
   {
     \begin{itemize}
-      \item \textbf{Seguridad Saliente:} Conexión por sondeo HTTPS (\textit{long-polling}) hacia GitHub sin abrir puertos entrantes.
-      \item \textbf{Acceso Directo:} Ejecución nativa en el servidor con permisos de Docker y bases de datos locales.
-      \item \textbf{Servicio Systemd:} Servicio persistente en segundo plano bajo el usuario \texttt{iaslab}.
-      \item \textbf{Etiquetas:} Seleccionable mediante \texttt{runs-on: [ self-hosted ]}.
+      \item \textbf{GitHub-Hosted Runners:} Máquinas virtuales efímeras en la nube pública; ideales para pruebas unitarias aisladas.
+      \item \textbf{Self-Hosted Runners:} Agentes ejecutándose en servidores propios o institucionales de la universidad.
+      \item \textbf{Seguridad de Red:} Conexión por sondeo seguro (\textit{long-polling}) sin exponer puertos públicos de entrada.
+      \item \textbf{Acceso Interno:} Despliegue directo sobre redes privadas, sockets de Docker locales y bases de datos internas.
     \end{itemize}
   }
-  {Ventajas Institucionales}
-  {Permite ejecutar pipelines directamente sobre la infraestructura de la universidad sin límites de minutos en la nube.}
+  {Flexibilidad Híbrida}
+  {Se pueden combinar jobs en la nube para análisis de código y jobs en runners locales para despliegue en servidores del laboratorio.}
 
 \contentSlideQuoteStat
-  {Integración Continua IasLab}
-  {grid100}
-  {Self-Hosted Runner en Operación}
-  {“El runner en grid100 conecta GitHub directamente con la infraestructura interna de IasLab de forma segura y automatizada.”}
+  {Entrega Continua}
+  {CI / CD}
+  {Ciclo de Vida Automatizado}
+  {“Un pipeline robusto transforma el código fuente en un servicio en producción de forma rápida, repetible y confiable.”}
 
 % ==============================================================================
 % CIERRE Y RECAPITULACIÓN
 % ==============================================================================
 \agendaSlideProgress
-  {Checklist de Buenas Prácticas}
+  {Checklist DevOps para Estudiantes}
   {4}
-  {1. Scripts con set -euo pipefail}
-  {2. Dockerfiles Multi-Stage}
-  {3. Ramas de GitFlow y SemVer}
-  {4. Workflows Condicionales en Actions}
+  {1. Scripts con set -euo pipefail y validación}
+  {2. Dockerfiles Multi-Stage para Spring y React}
+  {3. Disciplina en Ramas de GitFlow y SemVer}
+  {4. Pipelines Declarativos con GitHub Actions}
 
 \end{document}

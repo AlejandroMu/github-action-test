@@ -1,0 +1,57 @@
+name: Deploy with Docker (Docker Branch)
+
+on:
+  push:
+    branches:
+      - docker
+  workflow_dispatch:
+
+jobs:
+  deploy-docker:
+    name: Docker Container Deployment on grid100
+    runs-on: [ self-hosted ]
+    if: github.ref == 'refs/heads/docker' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Diagnostics & Environment Info
+        run: |
+          echo "=========================================="
+          echo "  Modo: Despliegue con Docker (Rama Docker)"
+          echo "  Host: $(hostname)"
+          echo "  Usuario: $(whoami)"
+          echo "  Directorio: $(pwd)"
+          echo "  Fecha: $(date)"
+          echo "=========================================="
+          docker --version
+          docker compose version
+
+      - name: Build & Run Docker Container
+        run: |
+          echo "Construyendo y levantando contenedor Docker..."
+          docker compose down --remove-orphans || true
+          docker compose build --no-cache
+          docker compose up -d --force-recreate
+          echo "Contenedor iniciado exitosamente:"
+          docker ps --filter "name=github-action-test-app"
+
+      - name: Deploy Nginx Reverse Proxy Config
+        run: |
+          DEST_DIR="/home/iaslab/github-action-docker"
+          mkdir -p "$DEST_DIR"
+          cp nginx.conf "$DEST_DIR/nginx.conf"
+          chmod -R 755 "$DEST_DIR"
+          echo "Configuracion de Nginx copiada a $DEST_DIR/nginx.conf"
+
+      - name: Test & Reload Nginx
+        run: |
+          sudo nginx -t
+          sudo systemctl reload nginx
+          echo "Nginx recargado exitosamente con proxy hacia el contenedor Docker."
+
+      - name: Container Healthcheck
+        run: |
+          sleep 2
+          curl -sI http://127.0.0.1:9088/ | head -n 5
+          echo "Contenedor respondiendo correctamente en puerto 9088."

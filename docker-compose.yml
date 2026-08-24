@@ -1,0 +1,10 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: github-action-test:latest
+    container_name: github-action-test-app
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9088:80"

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prueba de Despliegue - GitHub Actions</title>
+  <title>Prueba Docker - GitHub Actions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -42,7 +42,7 @@
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(90deg, #238636, #58a6ff, #8957e5);
+      background: linear-gradient(90deg, #1f6feb, #58a6ff, #38bdf8);
     }
     .badge {
       display: inline-flex;
@@ -52,17 +52,17 @@
       border-radius: 20px;
       font-size: 0.85rem;
       font-weight: 600;
-      background: rgba(46, 160, 67, 0.15);
-      color: #3fb950;
-      border: 1px solid rgba(46, 160, 67, 0.4);
+      background: rgba(31, 111, 235, 0.15);
+      color: #58a6ff;
+      border: 1px solid rgba(31, 111, 235, 0.4);
       margin-bottom: 1.5rem;
     }
     .dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #3fb950;
-      box-shadow: 0 0 8px #3fb950;
+      background-color: #58a6ff;
+      box-shadow: 0 0 8px #58a6ff;
     }
     h1 {
       font-size: 1.75rem;
@@ -113,32 +113,32 @@
   <div class="card">
     <div class="badge">
       <span class="dot"></span>
-      Despliegue Exitoso
+      🐳 Despliegue con Docker Container
     </div>
-    <h1>Prueba de GitHub Actions</h1>
-    <p>Este archivo HTML ha sido sincronizado y desplegado a través del runner auto-hospedado (self-hosted runner) en el servidor <strong>grid100</strong>.</p>
+    <h1>Prueba Docker en grid100</h1>
+    <p>Esta aplicación se compiló y desplegó en un contenedor <strong>Docker (Nginx Alpine)</strong> mediante el pipeline condicional de GitHub Actions para la rama <code>docker</code>.</p>
     
     <div class="info-box">
       <div class="info-row">
-        <span class="info-label">Repositorio:</span>
-        <span class="info-val">AlejandroMu/github-action-test</span>
+        <span class="info-label">Repositorio / Rama:</span>
+        <span class="info-val">AlejandroMu/github-action-test (docker)</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Host de Ejecución:</span>
-        <span class="info-val">grid100 (192.168.131.10)</span>
+        <span class="info-label">Contenedor:</span>
+        <span class="info-val">github-action-test-app</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Runner:</span>
-        <span class="info-val">self-hosted / linux-x64</span>
+        <span class="info-label">Puerto Interno:</span>
+        <span class="info-val">127.0.0.1:9088 (Mapeado a :80)</span>
       </div>
       <div class="info-row">
-        <span class="info-label">Estado:</span>
-        <span class="info-val" style="color: #3fb950;">Activo</span>
+        <span class="info-label">Ruta Proxy Nginx:</span>
+        <span class="info-val">/iaslab/github-action-docker/</span>
       </div>
     </div>
 
     <footer>
-      IasLab · Universidad Icesi · CI/CD Automation
+      IasLab · Universidad Icesi · CI/CD Docker Pipeline
     </footer>
   </div>
 </body>

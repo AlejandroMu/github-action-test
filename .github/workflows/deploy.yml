@@ -21,18 +21,26 @@ jobs:
           echo "  Directorio de trabajo: $(pwd)"
           echo "  Fecha de ejecucion: $(date)"
           echo "=========================================="
-          docker --version || echo "Docker no disponible"
-          docker compose version || echo "Docker Compose no disponible"
 
-      - name: Verify HTML Files
+      - name: Verify Project Files
         run: |
-          echo "Verificando presencia de index.html..."
           test -f index.html
-          echo "index.html verificado correctamente ($(wc -c < index.html) bytes)."
+          test -f nginx.conf
+          echo "Archivos verificados correctamente."
 
-      - name: Deploy Test Page to grid100
+      - name: Deploy Files to grid100
         run: |
           DEST_DIR="/home/iaslab/github-action-test"
           mkdir -p "$DEST_DIR"
           cp index.html "$DEST_DIR/index.html"
-          echo "Pagina de prueba desplegada exitosamente en $DEST_DIR/index.html"
+          cp nginx.conf "$DEST_DIR/nginx.conf"
+          chmod -R 755 "$DEST_DIR"
+          echo "Archivos desplegados exitosamente en $DEST_DIR"
+
+      - name: Test & Reload Nginx
+        run: |
+          echo "Validando configuracion de Nginx..."
+          sudo nginx -t
+          echo "Recargando Nginx..."
+          sudo systemctl reload nginx
+          echo "Nginx recargado exitosamente."

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prueba de Despliegue - GitHub Actions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      max-width: 640px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #238636, #58a6ff, #8957e5);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      background: rgba(46, 160, 67, 0.15);
+      color: #3fb950;
+      border: 1px solid rgba(46, 160, 67, 0.4);
+      margin-bottom: 1.5rem;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3fb950;
+      box-shadow: 0 0 8px #3fb950;
+    }
+    h1 {
+      font-size: 1.75rem;
+      color: #f0f6fc;
+      margin-bottom: 0.75rem;
+      font-weight: 800;
+    }
+    p {
+      color: #8b949e;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .info-box {
+      background: #090d13;
+      border: 1px solid #21262d;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.88rem;
+      color: #79c0ff;
+      margin-bottom: 1.5rem;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #21262d;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .info-label {
+      color: #8b949e;
+    }
+    .info-val {
+      color: #f0f6fc;
+      font-weight: 600;
+    }
+    footer {
+      font-size: 0.85rem;
+      color: #8b949e;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">
+      <span class="dot"></span>
+      Despliegue Exitoso
+    </div>
+    <h1>Prueba de GitHub Actions</h1>
+    <p>Este archivo HTML ha sido sincronizado y desplegado a través del runner auto-hospedado (self-hosted runner) en el servidor <strong>grid100</strong>.</p>
+    
+    <div class="info-box">
+      <div class="info-row">
+        <span class="info-label">Repositorio:</span>
+        <span class="info-val">AlejandroMu/github-action-test</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Host de Ejecución:</span>
+        <span class="info-val">grid100 (192.168.131.10)</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Runner:</span>
+        <span class="info-val">self-hosted / linux-x64</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Estado:</span>
+        <span class="info-val" style="color: #3fb950;">Activo</span>
+      </div>
+    </div>
+
+    <footer>
+      IasLab · Universidad Icesi · CI/CD Automation
+    </footer>
+  </div>
+</body>
+</html>

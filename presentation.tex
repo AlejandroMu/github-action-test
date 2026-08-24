@@ -1,0 +1,244 @@
+\documentclass[aspectratio=169]{beamer}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+% Paquete oficial de plantilla Beamer de Icesi
+\usepackage{custombeamer}
+
+\begin{document}
+
+% ==============================================================================
+% PORTADA
+% ==============================================================================
+\titleSlideSplit
+  {DevOps \& CI/CD}
+  {Guía Práctica para Ingeniería de Software}
+  {Departamento de TIC · Infraestructura IasLab}
+  {Universidad Icesi · 2026}
+
+% ==============================================================================
+% AGENDA
+% ==============================================================================
+\agendaSlideCards
+  {Ruta de Aprendizaje}
+  {Módulo 1: Scripts de Automatización}
+  {Módulo 2: Contenedores con Docker}
+  {Módulo 3: Flujos de Git (GitFlow)}
+  {Módulo 4: CI/CD con GitHub Actions}
+
+% ==============================================================================
+% MÓDULO 1: SCRIPTS Y AUTOMATIZACIÓN
+% ==============================================================================
+\sectionSlideStripe
+  {01}
+  {Scripts de Automatización}
+  {Buenas prácticas, ejecución segura y parametrización en Bash}
+
+\contentSlideBulletCard
+  {Shell Scripting Defensivo}
+  {
+    \begin{itemize}
+      \item \textbf{set -e:} Detiene la ejecución si falla cualquier comando.
+      \item \textbf{set -u:} Trata el uso de variables no definidas como error fatal.
+      \item \textbf{set -o pipefail:} Detecta errores intermedios en tuberías (\texttt{|}).
+      \item \textbf{Idempotencia:} El script debe poder ejecutarse múltiples veces sin inconsistencias.
+    \end{itemize}
+  }
+  {Principio de Robustez}
+  {Un script de producción debe abortar inmediatamente ante estados inesperados para prevenir corrupciones en el servidor.}
+
+\contentSlideTwoCols
+  {Estructura de un Script de Despliegue}
+  {Validación de Parámetros}
+  {
+    \begin{itemize}
+      \item Validar argumentos posicionales (\texttt{\$1}, \texttt{\$2}).
+      \item Proveer valores por defecto con sintaxis \texttt{\$\{VAR:-defaul\}}.
+      \item Verificar existencia de rutas con \texttt{[ -d "\$DIR" ]}.
+    \end{itemize}
+  }
+  {Control y Notificaciones}
+  {
+    \begin{itemize}
+      \item Uso de códigos de salida claros (\texttt{exit 1}).
+      \item Colores en consola para trazabilidad de éxito y fallo.
+      \item Registro de eventos en archivos de log dedicados.
+    \end{itemize}
+  }
+
+\contentSlideQuoteStat
+  {Buenas Prácticas en Automatización}
+  {set -euo pipefail}
+  {Directiva de Ejecución Defensiva}
+  {“La automatización confiable elimina el error humano en los despliegues repetitivos de software.”}
+
+% ==============================================================================
+% MÓDULO 2: CONTENERIZACIÓN CON DOCKER
+% ==============================================================================
+\sectionSlideSolid
+  {02}
+  {Contenerización con Docker}
+  {Multi-Stage Builds, Docker Compose y Reverse Proxy}
+
+\contentSlideBulletCard
+  {Optimización con Multi-Stage Builds}
+  {
+    \begin{itemize}
+      \item \textbf{Etapa Builder:} Descarga dependencias y compila el binario con JDK o Node.js.
+      \item \textbf{Etapa Runtime:} Copia únicamente el artefacto final a una imagen ligera (JRE o Nginx Alpine).
+      \item \textbf{Seguridad:} Ejecutar contenedores con usuarios no privilegiados (\texttt{USER app}).
+      \item \textbf{Eficiencia:} Reduce imágenes de 800MB a menos de 40MB.
+    \end{itemize}
+  }
+  {Aislamiento de Capas}
+  {Separar compilación y ejecución previene vulnerabilidades y acelera la transferencia de imágenes por la red.}
+
+\contentSlideTwoCols
+  {Orquestación con Docker Compose}
+  {Definición de Servicios}
+  {
+    \begin{itemize}
+      \item Declaración declarativa de servicios, redes y volúmenes.
+      \item Aislamiento en redes puente (\textit{bridge networks}).
+      \item Parámetros de reinicio automático (\texttt{unless-stopped}).
+    \end{itemize}
+  }
+  {Mapeo de Puertos y Variables}
+  {
+    \begin{itemize}
+      \item Exposición local segura (\texttt{127.0.0.1:9088:80}).
+      \item Centralización de secretos mediante archivos \texttt{.env}.
+      \item Control de dependencias mediante \texttt{depends\_on}.
+    \end{itemize}
+  }
+
+\contentSlideBulletCard
+  {Arquitectura con Nginx Reverse Proxy}
+  {
+    \begin{itemize}
+      \item \textbf{Punto Único de Entrada:} Nginx escucha en el puerto 80 del servidor.
+      \item \textbf{Enrutamiento Modular:} Inclusión dinámica de \texttt{/home/iaslab/*/nginx.conf}.
+      \item \textbf{Proxy Pass:} Reenvía el tráfico hacia el contenedor interno (\texttt{http://127.0.0.1:puerto}).
+      \item \textbf{Preservación de Rutas:} Redirección 301 con \texttt{\$is\_args\$args}.
+    \end{itemize}
+  }
+  {Patrón Institucional IasLab}
+  {Cada proyecto gestiona su propio archivo de configuración de Nginx sin afectar a otros servicios del host.}
+
+% ==============================================================================
+% MÓDULO 3: FLUJOS DE TRABAJO EN GIT (GITFLOW)
+% ==============================================================================
+\sectionSlideStripe
+  {03}
+  {Estrategias de Git y GitFlow}
+  {Topología de ramas, SemVer y control de calidad}
+
+\contentSlideTwoCols
+  {Topología de Ramas en GitFlow}
+  {Ramas de Larga Duración}
+  {
+    \begin{itemize}
+      \item \textbf{main / master:} Código estable en producción (\texttt{v1.0.0}).
+      \item \textbf{develop:} Integración continua de nuevas características (\texttt{SNAPSHOT}).
+      \item \textbf{release / qa:} Estabilización y pruebas previas al despliegue (\texttt{RC}).
+    \end{itemize}
+  }
+  {Ramas de Soporte Temporal}
+  {
+    \begin{itemize}
+      \item \textbf{feature/*:} Desarrollo de requerimientos específicos.
+      \item \textbf{hotfix/*:} Corrección urgente de bugs críticos en producción.
+      \item Integración mediante Pull Requests con revisión obligatoria.
+    \end{itemize}
+  }
+
+\contentSlideBulletCard
+  {Versionado y Convenciones de Commits}
+  {
+    \begin{itemize}
+      \item \textbf{SemVer (X.Y.Z):} \textit{Major} (rompimiento), \textit{Minor} (funcionalidad), \textit{Patch} (corrección).
+      \item \textbf{feat:} Introduce una nueva característica funcional.
+      \item \textbf{fix:} Soluciona un bug o defecto identificado.
+      \item \textbf{ci / docs / refactor:} Cambios en pipelines, guías o estructura interna.
+    \end{itemize}
+  }
+  {Trazabilidad Total}
+  {Un historial estandarizado permite generar changelogs automatizados y facilita el rastreo de versiones.}
+
+\contentSlideQuoteStat
+  {Disciplina en Control de Versiones}
+  {Pull Requests}
+  {Flujo de Integración Protegido}
+  {“La rama principal debe permanecer inmutable; todo cambio debe pasar por revisión por pares y pruebas automatizadas.”}
+
+% ==============================================================================
+% MÓDULO 4: CI/CD CON GITHUB ACTIONS
+% ==============================================================================
+\sectionSlideDark
+  {04}
+  {CI/CD con GitHub Actions}
+  {Pipelines condicionales y Runners Auto-Hospedados}
+
+\contentSlideBulletCard
+  {Anatomía de un Workflow en GitHub}
+  {
+    \begin{itemize}
+      \item \textbf{Ubicación:} Archivos YAML en \texttt{.github/workflows/}.
+      \item \textbf{Eventos (on):} Disparadores por \texttt{push}, \texttt{pull\_request} o \texttt{workflow\_dispatch}.
+      \item \textbf{Jobs:} Unidades de trabajo que se ejecutan en runners específicos.
+      \item \textbf{Steps:} Pasos secuenciales que invocan acciones predefinidas o comandos de shell.
+    \end{itemize}
+  }
+  {Automatización Declarativa}
+  {Permite codificar el ciclo de vida completo de compilación, pruebas y entrega en el mismo repositorio.}
+
+\contentSlideTwoCols
+  {Despliegues Condicionales por Rama}
+  {Rama main (Despliegue Estático)}
+  {
+    \begin{itemize}
+      \item Filtro en trigger: \texttt{on.push.branches: [ main ]}.
+      \item Copia archivos estáticos a \texttt{/home/iaslab/app}.
+      \item Valida y recarga Nginx del host.
+    \end{itemize}
+  }
+  {Rama docker (Contenedores)}
+  {
+    \begin{itemize}
+      \item Filtro en trigger: \texttt{on.push.branches: [ docker ]}.
+      \item Ejecuta \texttt{docker compose up -d --build}.
+      \item Configura reverse proxy hacia el puerto del contenedor.
+    \end{itemize}
+  }
+
+\contentSlideBulletCard
+  {Self-Hosted Runners en grid100}
+  {
+    \begin{itemize}
+      \item \textbf{Seguridad Saliente:} Conexión por sondeo HTTPS (\textit{long-polling}) hacia GitHub sin abrir puertos entrantes.
+      \item \textbf{Acceso Directo:} Ejecución nativa en el servidor con permisos de Docker y bases de datos locales.
+      \item \textbf{Servicio Systemd:} Servicio persistente en segundo plano bajo el usuario \texttt{iaslab}.
+      \item \textbf{Etiquetas:} Seleccionable mediante \texttt{runs-on: [ self-hosted ]}.
+    \end{itemize}
+  }
+  {Ventajas Institucionales}
+  {Permite ejecutar pipelines directamente sobre la infraestructura de la universidad sin límites de minutos en la nube.}
+
+\contentSlideQuoteStat
+  {Integración Continua IasLab}
+  {grid100}
+  {Self-Hosted Runner en Operación}
+  {“El runner en grid100 conecta GitHub directamente con la infraestructura interna de IasLab de forma segura y automatizada.”}
+
+% ==============================================================================
+% CIERRE Y RECAPITULACIÓN
+% ==============================================================================
+\agendaSlideProgress
+  {Checklist de Buenas Prácticas}
+  {4}
+  {1. Scripts con set -euo pipefail}
+  {2. Dockerfiles Multi-Stage}
+  {3. Ramas de GitFlow y SemVer}
+  {4. Workflows Condicionales en Actions}
+
+\end{document}

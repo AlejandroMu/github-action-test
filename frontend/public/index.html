@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora Ingesoft V</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --border: #30363d;
+      --text: #f0f6fc;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --ok: #3fb950;
+      --warn: #d29922;
+      --err: #f85149;
+      --input: #090d13;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, rgba(88, 166, 255, 0.12), transparent 50%),
+                  radial-gradient(900px 500px at 100% 0%, rgba(63, 185, 80, 0.08), transparent 45%),
+                  var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.25rem;
+    }
+    .wrap { max-width: 1080px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(63, 185, 80, 0.12);
+      color: var(--ok);
+      border: 1px solid rgba(63, 185, 80, 0.35);
+      margin-bottom: 0.7rem;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--ok); box-shadow: 0 0 8px var(--ok);
+    }
+    h1 { font-size: clamp(1.4rem, 3vw, 1.9rem); font-weight: 800; }
+    .subtitle { color: var(--muted); margin-top: 0.35rem; line-height: 1.5; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+    }
+    h2 { font-size: 1rem; margin-bottom: 0.9rem; }
+    label { display: block; color: var(--muted); font-size: 0.85rem; margin-bottom: 0.35rem; }
+    input[type="text"] {
+      width: 100%;
+      background: var(--input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 0.7rem 0.8rem;
+      font-size: 1rem;
+      font-family: "JetBrains Mono", monospace;
+      margin-bottom: 0.85rem;
+    }
+    input[type="text"]:focus { outline: 2px solid rgba(88, 166, 255, 0.45); }
+    .ops {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .ops button, .primary, .ghost {
+      border: 1px solid var(--border);
+      background: #21262d;
+      color: var(--text);
+      border-radius: 10px;
+      padding: 0.65rem 0.5rem;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .ops button.active {
+      background: rgba(88, 166, 255, 0.18);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .actions { display: flex; gap: 0.6rem; }
+    .primary {
+      flex: 1;
+      background: #1f6feb;
+      border-color: #1f6feb;
+    }
+    .ghost { background: transparent; }
+    .result, .error, .empty {
+      margin-top: 1rem;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      font-family: "JetBrains Mono", monospace;
+    }
+    .result { background: rgba(63, 185, 80, 0.1); border: 1px solid rgba(63, 185, 80, 0.35); color: var(--ok); }
+    .error { background: rgba(248, 81, 73, 0.1); border: 1px solid rgba(248, 81, 73, 0.4); color: #ffa198; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th, td { text-align: left; padding: 0.55rem 0.3rem; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-weight: 600; }
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .stat {
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem;
+    }
+    .stat span { display: block; color: var(--muted); font-size: 0.75rem; margin-bottom: 0.25rem; }
+    .stat strong { font-family: "JetBrains Mono", monospace; font-size: 0.92rem; }
+    .ok { color: var(--ok); }
+    .bad { color: var(--err); }
+    .warn { color: var(--warn); }
+    footer { margin-top: 1rem; color: var(--muted); font-size: 0.82rem; }
+    @media (max-width: 840px) {
+      .grid, .status-grid, .ops { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+      .grid, .status-grid, .ops { grid-template-columns: 1fr; }
+      header { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="badge"><span class="dot"></span> HU1–HU5 desplegadas</div>
+        <h1>Calculadora Ingesoft V</h1>
+        <p class="subtitle">Frontend REST + Backend JSON, persistencia local SoR e inspección de salud del servicio.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Operación</h2>
+        <form id="calc-form">
+          <label for="a">Número A</label>
+          <input id="a" name="a" type="text" inputmode="decimal" placeholder="Ej. 12" required />
+          <label for="b">Número B</label>
+          <input id="b" name="b" type="text" inputmode="decimal" placeholder="Ej. 4" required />
+          <label>Operación</label>
+          <div class="ops" role="radiogroup" aria-label="Operación">
+            <button type="button" class="op active" data-op="sum">Suma</button>
+            <button type="button" class="op" data-op="subtract">Resta</button>
+            <button type="button" class="op" data-op="multiply">Multiplicación</button>
+            <button type="button" class="op" data-op="divide">División</button>
+          </div>
+          <div class="actions">
+            <button class="primary" type="submit">Calcular</button>
+            <button class="ghost" type="button" id="refresh-history">Actualizar historial</button>
+          </div>
+        </form>
+        <div id="result" class="result hidden"></div>
+        <div id="error" class="error hidden"></div>
+      </section>
+
+      <section class="card">
+        <h2>Últimas 5 operaciones</h2>
+        <div id="history-empty" class="empty">Aún no hay operaciones registradas.</div>
+        <table id="history-table" class="hidden">
+          <thead>
+            <tr>
+              <th>Op</th>
+              <th>A</th>
+              <th>B</th>
+              <th>Resultado</th>
+            </tr>
+          </thead>
+          <tbody id="history-body"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top: 1rem;">
+      <h2>Telemetría y salud</h2>
+      <div class="status-grid">
+        <div class="stat"><span>Frontend /status</span><strong id="st-front">…</strong></div>
+        <div class="stat"><span>Backend /health</span><strong id="st-back">…</strong></div>
+        <div class="stat"><span>Persistencia</span><strong id="st-persist">…</strong></div>
+        <div class="stat"><span>Uptime</span><strong id="st-uptime">…</strong></div>
+      </div>
+    </section>
+    <footer>IasLab · Universidad Icesi · Ingesoft V · CI/CD Docker</footer>
+  </div>
+
+  <script>
+    const BASE = new URL("./", window.location.href);
+    const labels = { sum: "Suma", subtract: "Resta", multiply: "Multiplicación", divide: "División" };
+    let currentOp = "sum";
+
+    function apiUrl(path) {
+      return new URL(path, BASE).toString();
+    }
+
+    function show(el, text) {
+      el.textContent = text;
+      el.classList.remove("hidden");
+    }
+
+    function hide(el) {
+      el.classList.add("hidden");
+      el.textContent = "";
+    }
+
+    function formatNumber(n) {
+      if (typeof n !== "number" || !Number.isFinite(n)) return String(n);
+      if (Number.isInteger(n)) return String(n);
+      return Number.parseFloat(n.toPrecision(12)).toString();
+    }
+
+    document.querySelectorAll(".op").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".op").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentOp = btn.dataset.op;
+      });
+    });
+
+    async function request(path, options) {
+      const res = await fetch(apiUrl(path), options);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const err = new Error(data.error || "Error al procesar la operación");
+        err.status = res.status;
+        err.code = data.code;
+        throw err;
+      }
+      return data;
+    }
+
+    async function loadHistory() {
+      try {
+        const data = await request("history");
+        const items = data.items || [];
+        const table = document.getElementById("history-table");
+        const empty = document.getElementById("history-empty");
+        const body = document.getElementById("history-body");
+        if (!items.length) {
+          table.classList.add("hidden");
+          empty.classList.remove("hidden");
+          return;
+        }
+        empty.classList.add("hidden");
+        table.classList.remove("hidden");
+        body.innerHTML = items.map((item) => `
+          <tr>
+            <td>${labels[item.operation] || item.operation}</td>
+            <td>${formatNumber(item.a)}</td>
+            <td>${formatNumber(item.b)}</td>
+            <td>${formatNumber(item.result)}</td>
+          </tr>
+        `).join("");
+      } catch (err) {
+        document.getElementById("history-empty").textContent = "No se pudo consultar el historial.";
+      }
+    }
+
+    async function loadStatus() {
+      const frontEl = document.getElementById("st-front");
+      const backEl = document.getElementById("st-back");
+      const persistEl = document.getElementById("st-persist");
+      const uptimeEl = document.getElementById("st-uptime");
+      try {
+        const [status, health] = await Promise.all([
+          request("status"),
+          request("health")
+        ]);
+        frontEl.textContent = status.status === "ok" ? "OK" : status.status;
+        frontEl.className = status.status === "ok" ? "ok" : "bad";
+        backEl.textContent = health.status === "ok" || health.status === "degraded" ? health.status.toUpperCase() : "DOWN";
+        backEl.className = health.status === "ok" ? "ok" : "warn";
+        const writable = Boolean(status.persistenceWritable || health.persistenceWritable);
+        persistEl.textContent = writable ? "Escritura OK" : "Sin permisos";
+        persistEl.className = writable ? "ok" : "bad";
+        uptimeEl.textContent = `FE ${status.uptimeHuman} · BE ${health.uptimeHuman}`;
+      } catch {
+        frontEl.textContent = "DOWN";
+        frontEl.className = "bad";
+        backEl.textContent = "DOWN";
+        backEl.className = "bad";
+        persistEl.textContent = "Desconocida";
+        persistEl.className = "warn";
+        uptimeEl.textContent = "n/d";
+      }
+    }
+
+    document.getElementById("calc-form").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const resultEl = document.getElementById("result");
+      const errorEl = document.getElementById("error");
+      hide(resultEl);
+      hide(errorEl);
+      const a = document.getElementById("a").value.trim();
+      const b = document.getElementById("b").value.trim();
+      try {
+        const data = await request(currentOp, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ a, b })
+        });
+        show(resultEl, `${labels[data.operation]}: ${formatNumber(data.a)} y ${formatNumber(data.b)} = ${formatNumber(data.result)}`);
+        await loadHistory();
+        await loadStatus();
+      } catch (err) {
+        const friendly = err.code === "DIVISION_BY_ZERO"
+          ? "No se puede dividir por cero. Cambia el segundo número e inténtalo de nuevo."
+          : (err.message || "Ocurrió un error al calcular.");
+        show(errorEl, friendly);
+      }
+    });
+
+    document.getElementById("refresh-history").addEventListener("click", loadHistory);
+    loadHistory();
+    loadStatus();
+    setInterval(loadStatus, 15000);
+  </script>
+</body>
+</html>

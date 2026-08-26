@@ -1,49 +1,71 @@
-# 🚀 Ingesoft V — GitHub Actions, Docker & Infraestructura IasLab
+# Ingesoft V — Calculadora REST + CI/CD en IasLab
 
-Repositorio de trabajo y pruebas de **Ingeniería de Software V** (Universidad Icesi) para la validación de pipelines de CI/CD ejecutados en el **Self-Hosted Runner** de GitHub Actions (`grid100`) y el despliegue distribuido de servicios hacia nodos de laboratorio (`205m01`).
+Aplicación de las historias de usuario HU1–HU5 sobre la infraestructura de **GitHub Actions (self-hosted runner `grid100`)** y despliegue en contenedores Docker.
 
----
+## Historias de usuario
 
-## 📁 Estructura del Repositorio
+| HU | Descripción | Criterio cubierto |
+| :--- | :--- | :--- |
+| **HU1** | Servicio de suma | Frontend llama al Backend por HTTP/REST; el Backend responde JSON |
+| **HU2** | Resta y multiplicación | Endpoints `/subtract` y `/multiply`; el Frontend permite seleccionarlos |
+| **HU3** | Historial SoR | Cada cálculo exitoso se persiste en archivo local; el Frontend consulta las últimas 5 |
+| **HU4** | División con validación | `/divide` retorna HTTP 400 si el denominador es 0, lo registra y el Frontend muestra el error |
+| **HU5** | Telemetría / health | `/health` en Backend y `/status` en Frontend: estado, uptime y permisos de escritura |
 
-```
-.
-├── .github/
-│   └── workflows/
-│       ├── deploy-static.yml   # Workflow para rama 'main' (Despliegue Estático)
-│       └── deploy-docker.yml   # Workflow para rama 'docker' (Contenedor Docker)
-├── Dockerfile                  # Empaquetado Nginx Alpine
-├── docker-compose.yml          # Servicio web mapeado en 127.0.0.1:9088:80
-├── nginx.conf                  # Configuración de Reverse Proxy para grid100
-├── index.html                  # Frontend de prueba
-├── custombeamer.sty            # Plantilla Beamer oficial con logo vectorial ICESI
-├── presentation.tex            # Código fuente LaTeX de la guía DevOps (26 slides)
-├── presentation.pdf            # Presentación compilada en alta resolución (16:9)
-├── SESSION_CONTEXT.md          # Memoria técnica completa de la sesión
-└── README.md                   # Documentación principal
-```
+## Endpoints
 
----
-
-## 🌿 Estrategia de Ramas y Despliegues
-
-| Rama | Workflow | Tipo de Despliegue | URL Activa |
+| Método | Ruta | Servicio | Notas |
 | :--- | :--- | :--- | :--- |
-| **`main`** | `deploy-static.yml` | Despliegue estático de archivos HTML en `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-test/](https://pi2tools.icesi.edu.co/iaslab/github-action-test/) |
-| **`docker`** | `deploy-docker.yml` | Contenedor Docker + Reverse Proxy en `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-docker/](https://pi2tools.icesi.edu.co/iaslab/github-action-docker/) |
+| GET/POST | `/sum` | Backend | `{ "a": 2, "b": 3 }` → `{ result: 5, ... }` |
+| GET/POST | `/subtract` | Backend | Resta |
+| GET/POST | `/multiply` | Backend | Multiplicación |
+| GET/POST | `/divide` | Backend | HTTP 400 si `b = 0` |
+| GET | `/history` | Backend | Últimas 5 operaciones persistidas |
+| GET | `/health` | Backend | Estado, uptime, persistencia escribible |
+| GET | `/status` | Frontend | Estado del frontend + persistencia + backend |
+| GET | `/` | Frontend | Interfaz de usuario |
 
----
+Ejemplos:
 
-## 📊 Presentación Institucional en LaTeX
+```bash
+curl -X POST https://pi2tools.icesi.edu.co/iaslab/github-action-docker/sum \
+  -H "Content-Type: application/json" -d '{"a":2,"b":3}'
 
-El repositorio incluye la guía integral de DevOps para estudiantes de ingeniería de software:
-- **Archivo LaTeX:** [`presentation.tex`](./presentation.tex)
-- **PDF Compilado:** [`presentation.pdf`](./presentation.pdf)
-- **Paquete de Estilo:** [`custombeamer.sty`](./custombeamer.sty)
+curl "https://pi2tools.icesi.edu.co/iaslab/github-action-docker/divide?a=10&b=0"
+curl https://pi2tools.icesi.edu.co/iaslab/github-action-docker/health
+curl https://pi2tools.icesi.edu.co/iaslab/github-action-docker/status
+```
 
----
+## Arquitectura
 
-## 📖 Contexto y Topología de Servidores
+```
+Cliente
+  └── Nginx grid100  /iaslab/github-action-docker/  →  127.0.0.1:9088
+        └── web (nginx) github-action-test-app
+              ├── /                → frontend:3000
+              ├── /status          → frontend:3000
+              ├── /health          → backend:3001
+              └── /sum|/subtract|/multiply|/divide|/history → backend:3001
+                    └── volumen calc-data  (/data/operations.json)
+```
 
-Para detalles completos sobre la configuración del runner en `grid100`, el enrutamiento de Nginx hacia el nodo `205m01` (`192.168.131.61:8080`) y la sincronización de herramientas, consulta:
-👉 [`SESSION_CONTEXT.md`](./SESSION_CONTEXT.md)
+## Despliegue
+
+| Rama | Workflow | URL |
+| :--- | :--- | :--- |
+| **`docker`** | `deploy-docker.yml` | https://pi2tools.icesi.edu.co/iaslab/github-action-docker/ |
+| **`main`** | `deploy-static.yml` | https://pi2tools.icesi.edu.co/iaslab/github-action-test/ |
+
+Un push a `docker` construye backend, frontend y el gateway Nginx, levanta Compose en `grid100` y recarga el reverse proxy.
+
+## Ejecución local
+
+```bash
+docker compose up --build
+```
+
+La UI queda en `http://127.0.0.1:9088/`.
+
+```bash
+cd backend && npm test
+```

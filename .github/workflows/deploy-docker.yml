@@ -52,6 +52,16 @@ jobs:
 
       - name: Container Healthcheck
         run: |
-          sleep 2
+          sleep 3
+          echo "Frontend HTML:"
           curl -sI http://127.0.0.1:9088/ | head -n 5
-          echo "Contenedor respondiendo correctamente en puerto 9088."
+          echo "Backend /health:"
+          curl -sf http://127.0.0.1:9088/health
+          echo
+          echo "Frontend /status:"
+          curl -sf http://127.0.0.1:9088/status
+          echo
+          echo "HU1 suma de prueba:"
+          curl -sf -X POST http://127.0.0.1:9088/sum -H "Content-Type: application/json" -d '{"a":2,"b":3}'
+          echo
+          echo "Servicios respondiendo correctamente en puerto 9088."

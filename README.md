@@ -1,6 +1,6 @@
 # 🚀 Ingesoft V — GitHub Actions, Docker & Infraestructura IasLab
 
-Repositorio de trabajo y pruebas de **Ingeniería de Software V** (Universidad Icesi) para la validación de pipelines de CI/CD ejecutados en el **Self-Hosted Runner** de GitHub Actions (`grid100`) y el despliegue distribuido de servicios hacia nodos de laboratorio (`205m01`).
+Repositorio de trabajo y pruebas de **Ingeniería de Software V** (Universidad Icesi) para la validación de pipelines de CI/CD ejecutados en el **Self-Hosted Runner** de GitHub Actions (`grid100`) y el despliegue distribuido de servicios hacia servidores remotos (`grid101`, `205m01`).
 
 ---
 
@@ -10,33 +10,51 @@ Repositorio de trabajo y pruebas de **Ingeniería de Software V** (Universidad I
 .
 ├── .github/
 │   └── workflows/
-│       ├── deploy-static.yml   # Workflow para rama 'main' (Despliegue Estático)
-│       └── deploy-docker.yml   # Workflow para rama 'docker' (Contenedor Docker)
-├── Dockerfile                  # Empaquetado Nginx Alpine
-├── docker-compose.yml          # Servicio web mapeado en 127.0.0.1:9088:80
-├── nginx.conf                  # Configuración de Reverse Proxy para grid100
-├── index.html                  # Frontend de prueba
-├── custombeamer.sty            # Plantilla Beamer oficial con logo vectorial ICESI
-├── presentation.tex            # Código fuente LaTeX de la guía DevOps (26 slides)
-├── presentation.pdf            # Presentación compilada en alta resolución (16:9)
-├── SESSION_CONTEXT.md          # Memoria técnica completa de la sesión
-└── README.md                   # Documentación principal
+│       ├── deploy-static.yml         # Despliegue estático local en grid100 (Rama 'main')
+│       ├── deploy-docker.yml         # Despliegue en contenedor Docker en grid100 (Rama 'docker')
+│       └── deploy-remote.yml         # Despliegue remoto desde Runner (grid100) hacia grid101 vía SSH
+├── scripts/
+│   └── remote-deploy.sh              # Script modular de despliegue remoto con Docker y SSH
+├── GUIA_DESPLIEGUE_REMOTO_RUNNER.md  # 📘 Guía Maestra: Runner en Linux y Despliegue Remoto
+├── Dockerfile                        # Empaquetado Nginx Alpine
+├── docker-compose.yml                # Servicio web mapeado en 127.0.0.1:9088:80
+├── nginx.conf                        # Configuración de Reverse Proxy para Nginx
+├── index.html                        # Frontend de prueba
+├── custombeamer.sty                  # Plantilla Beamer oficial con logo vectorial ICESI
+├── presentation.tex                  # Código fuente LaTeX de la guía DevOps (26 slides)
+├── presentation.pdf                  # Presentación compilada en alta resolución (16:9)
+├── SESSION_CONTEXT.md                # Memoria técnica completa de la sesión
+└── README.md                         # Documentación principal
 ```
+
+---
+
+## 📘 Guía Completa de Despliegue Remoto con Runner
+
+Para aprender cómo configurar un runner en Linux y cómo transferir/ejecutar contenedores Docker en un servidor remoto (`grid100` ➔ `grid101`) vía SSH:
+👉 **[GUIA_DESPLIEGUE_REMOTO_RUNNER.md](./GUIA_DESPLIEGUE_REMOTO_RUNNER.md)**
+
+Incluye:
+1. Instalación y registro del Self-Hosted Runner como servicio Systemd.
+2. Configuración de claves SSH (`Ed25519`, `authorized_keys`, permisos 600/700).
+3. 3 Estrategias de transferencia de imagen (Docker Streaming SSH, Registry Nexus/GHCR, Build Remoto).
+4. Comparativa: Script en el proyecto (`scripts/remote-deploy.sh`) vs Pasos Inline en GitHub Actions.
+5. Checklist de configuración en el servidor de destino (`grid101`).
 
 ---
 
 ## 🌿 Estrategia de Ramas y Despliegues
 
-| Rama | Workflow | Tipo de Despliegue | URL Activa |
-| :--- | :--- | :--- | :--- |
-| **`main`** | `deploy-static.yml` | Despliegue estático de archivos HTML en `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-test/](https://pi2tools.icesi.edu.co/iaslab/github-action-test/) |
-| **`docker`** | `deploy-docker.yml` | Contenedor Docker + Reverse Proxy en `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-docker/](https://pi2tools.icesi.edu.co/iaslab/github-action-docker/) |
+| Rama | Workflow | Tipo de Despliegue | Host Destino | URL Activa |
+| :--- | :--- | :--- | :--- | :--- |
+| **`main`** | `deploy-static.yml` | Despliegue estático de archivos HTML | `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-test/](https://pi2tools.icesi.edu.co/iaslab/github-action-test/) |
+| **`docker`** | `deploy-docker.yml` | Contenedor Docker + Reverse Proxy | `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-docker/](https://pi2tools.icesi.edu.co/iaslab/github-action-docker/) |
+| **`remote-deploy`** | `deploy-remote.yml` | Despliegue remoto Docker vía SSH | `grid101` | `http://192.168.131.11/iaslab/github-action-remote/` |
 
 ---
 
-## 📊 Presentación Institucional en LaTeX
+## 📊 Presentación Institucional en LaTeX (Universidad Icesi)
 
-El repositorio incluye la guía integral de DevOps para estudiantes de ingeniería de software:
 - **Archivo LaTeX:** [`presentation.tex`](./presentation.tex)
 - **PDF Compilado:** [`presentation.pdf`](./presentation.pdf)
 - **Paquete de Estilo:** [`custombeamer.sty`](./custombeamer.sty)
@@ -45,5 +63,5 @@ El repositorio incluye la guía integral de DevOps para estudiantes de ingenier�
 
 ## 📖 Contexto y Topología de Servidores
 
-Para detalles completos sobre la configuración del runner en `grid100`, el enrutamiento de Nginx hacia el nodo `205m01` (`192.168.131.61:8080`) y la sincronización de herramientas, consulta:
+Consulta la memoria técnica completa con inventarios y puertos:
 👉 [`SESSION_CONTEXT.md`](./SESSION_CONTEXT.md)

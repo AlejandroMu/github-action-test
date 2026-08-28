@@ -10,23 +10,23 @@ En entornos de infraestructura profesional y laboratorios (como **IasLab**), el 
 
 ```mermaid
 flowchart TD
-    subgraph GitHub Cloud
-        Dev[💻 Desarrollador] -->|git push| Repo[🐙 Repositorio GitHub]
-        Repo -->|Dispara Job| Dispatch[⚡ GitHub Actions Engine]
+    subgraph GitHub_Cloud["GitHub Cloud"]
+        Dev["💻 Desarrollador"] -->|"git push"| Repo["🐙 Repositorio GitHub"]
+        Repo -->|"Dispara Job"| Dispatch["⚡ GitHub Actions Engine"]
     end
 
-    subgraph Red Interna / Servidores IasLab
-        Dispatch -.->|Long-Polling HTTPS :443| RunnerHost["🖥️ Servidor Runner (grid100)<br>Usuario: iaslab<br>• actions-runner.service<br>• Docker Engine (Build)"]
+    subgraph IasLab_Network["Red Interna / Servidores IasLab"]
+        Dispatch -.->|"Long-Polling HTTPS :443"| RunnerHost["🖥️ Servidor Runner (grid100)<br>Usuario: iaslab<br>• actions-runner.service<br>• Docker Engine (Build)"]
         
-        RunnerHost -->|1. Transfiere Imagen (Docker Stream / Registry)| DeployHost["🖥️ Servidor de Despliegue (grid101)<br>Usuario: iaslab<br>• Docker Engine (Runtime)<br>• Nginx Reverse Proxy (:80)"]
-        RunnerHost -->|2. Sincroniza docker-compose.yml (SCP)| DeployHost
-        RunnerHost -->|3. Ejecuta 'docker compose up' (SSH)| DeployHost
+        RunnerHost -->|"1. Transfiere Imagen (Docker Stream / Registry)"| DeployHost["🖥️ Servidor de Despliegue (grid101)<br>Usuario: iaslab<br>• Docker Engine (Runtime)<br>• Nginx Reverse Proxy (:80)"]
+        RunnerHost -->|"2. Sincroniza docker-compose.yml (SCP)"| DeployHost
+        RunnerHost -->|"3. Ejecuta docker compose up (SSH)"| DeployHost
         
-        DeployHost -->|Expone en Puerto :9088| AppContainer["🐳 Contenedor de la Aplicación"]
-        DeployHost -->|Enruta /iaslab/app/| NginxService["🌐 Nginx Web Server"]
+        DeployHost -->|"Expone en Puerto :9088"| AppContainer["🐳 Contenedor de la Aplicación"]
+        DeployHost -->|"Enruta /iaslab/app/"| NginxService["🌐 Nginx Web Server"]
     end
 
-    Client[👥 Evaluador / Usuario] -->|HTTP / HTTPS| DeployHost
+    Client["👥 Evaluador / Usuario"] -->|"HTTP / HTTPS"| DeployHost
 ```
 
 ### ¿Por qué separar el Runner del Servidor de Despliegue?

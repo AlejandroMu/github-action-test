@@ -20,10 +20,6 @@ Repositorio de trabajo y pruebas de **Ingeniería de Software V** (Universidad I
 ├── docker-compose.yml                # Servicio web mapeado en 127.0.0.1:9088:80
 ├── nginx.conf                        # Configuración de Reverse Proxy para Nginx
 ├── index.html                        # Frontend de prueba
-├── custombeamer.sty                  # Plantilla Beamer oficial con logo vectorial ICESI
-├── presentation.tex                  # Código fuente LaTeX de la guía DevOps (26 slides)
-├── presentation.pdf                  # Presentación compilada en alta resolución (16:9)
-├── SESSION_CONTEXT.md                # Memoria técnica completa de la sesión
 └── README.md                         # Documentación principal
 ```
 
@@ -50,18 +46,3 @@ Incluye:
 | **`main`** | `deploy-static.yml` | Despliegue estático de archivos HTML | `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-test/](https://pi2tools.icesi.edu.co/iaslab/github-action-test/) |
 | **`docker`** | `deploy-docker.yml` | Contenedor Docker + Reverse Proxy | `grid100` | [https://pi2tools.icesi.edu.co/iaslab/github-action-docker/](https://pi2tools.icesi.edu.co/iaslab/github-action-docker/) |
 | **`remote-deploy`** | `deploy-remote.yml` | Despliegue remoto Docker vía SSH | `grid101` | `http://192.168.131.11/iaslab/github-action-remote/` |
-
----
-
-## 📊 Presentación Institucional en LaTeX (Universidad Icesi)
-
-- **Archivo LaTeX:** [`presentation.tex`](./presentation.tex)
-- **PDF Compilado:** [`presentation.pdf`](./presentation.pdf)
-- **Paquete de Estilo:** [`custombeamer.sty`](./custombeamer.sty)
-
----
-
-## 📖 Contexto y Topología de Servidores
-
-Consulta la memoria técnica completa con inventarios y puertos:
-👉 [`SESSION_CONTEXT.md`](./SESSION_CONTEXT.md)

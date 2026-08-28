@@ -1,0 +1,16 @@
+# Local session and presentation files (Local storage only)
+SESSION_CONTEXT.md
+custombeamer.sty
+presentation.tex
+presentation.pdf
+presentacion_icesi.*
+
+# LaTeX build auxiliary files
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
